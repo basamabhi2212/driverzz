@@ -1,0 +1,471 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Trip Details {% endblock %}
+
+{% block extra_css %}
+<style>
+    #map {
+        height: 300px;
+        width: 100%;
+        border-radius: 8px;
+    }
+    #camera-container {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    #camera-view {
+        width: 100%;
+        border-radius: 8px;
+        display: none;
+    }
+    #captured-image {
+        width: 100%;
+        border-radius: 8px;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-route me-2"></i>Trip Details #{{ trip.id }}</h1>
+    <div>
+        <a href="{{ url_for('driver_dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Trip Status Card -->
+<div class="card bg-dark text-white shadow mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Trip Status</h5>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Status</h6>
+                        {% if trip.status.value == 'Assigned' %}
+                        <h4><span class="badge bg-info text-dark">{{ trip.status.value }}</span></h4>
+                        {% elif trip.status.value == 'Started' %}
+                        <h4><span class="badge bg-primary">{{ trip.status.value }}</span></h4>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Trip Type</h6>
+                        <h5>{{ trip.trip_type.value }}</h5>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Route Type</h6>
+                        <h5>{{ trip.route_type.value }}</h5>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Start Date & Time</h6>
+                        <h5>{{ trip.trip_start_date.strftime('%Y-%m-%d %H:%M') }}</h5>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">End Date & Time</h6>
+                        <h5>{{ trip.trip_end_date.strftime('%Y-%m-%d %H:%M') }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Customer Information -->
+    <div class="col-md-6 mb-4">
+        <div class="card bg-dark text-white shadow h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Customer Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-user-circle fa-5x text-success mb-3"></i>
+                    <h4>{{ trip.customer.name }}</h4>
+                </div>
+                
+                <table class="table table-dark">
+                    <tr>
+                        <th width="30%">Mobile Number:</th>
+                        <td>{{ trip.customer.mobile_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Vehicle Model:</th>
+                        <td>{{ trip.customer.vehicle_model or 'Not specified' }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Trip Details -->
+    <div class="col-md-6 mb-4">
+        <div class="card bg-dark text-white shadow h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Trip Details</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-dark">
+                    <tr>
+                        <th width="30%">Pickup Location:</th>
+                        <td>{{ trip.pickup_location }}</td>
+                    </tr>
+                    <tr>
+                        <th>Drop Location:</th>
+                        <td>{{ trip.drop_location or 'Same as pickup (round trip)' }}</td>
+                    </tr>
+                    {% if trip.status.value == 'Started' %}
+                    <tr>
+                        <th>Started At:</th>
+                        <td>{{ trip.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+                
+                <div id="map" class="mb-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Trip Actions -->
+<div class="card bg-dark text-white shadow mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Trip Actions</h5>
+    </div>
+    <div class="card-body">
+        {% if trip.status.value == 'Assigned' %}
+        <div class="text-center">
+            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#startTripModal">
+                <i class="fas fa-play me-2"></i>Start Trip
+            </button>
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-info-circle me-2"></i>You need to take a selfie before starting the trip.
+            </div>
+        </div>
+        {% elif trip.status.value == 'Started' %}
+        <div class="text-center">
+            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#endTripModal">
+                <i class="fas fa-stop me-2"></i>End Trip
+            </button>
+            <div class="alert alert-warning mt-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>Make sure to take a selfie at the trip end location.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Start Trip Modal -->
+<div class="modal fade" id="startTripModal" tabindex="-1" aria-labelledby="startTripModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="startTripModalLabel">Start Trip - Take Selfie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div id="camera-container">
+                        <video id="camera-view" autoplay></video>
+                        <img id="captured-image" alt="Captured image">
+                        <canvas id="canvas" style="display:none;"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        <button id="start-camera" class="btn btn-info mb-2">
+                            <i class="fas fa-camera me-2"></i>Start Camera
+                        </button>
+                        <button id="take-photo" class="btn btn-primary mb-2" style="display:none;">
+                            <i class="fas fa-camera me-2"></i>Take Photo
+                        </button>
+                        <button id="retake-photo" class="btn btn-secondary mb-2" style="display:none;">
+                            <i class="fas fa-redo me-2"></i>Retake
+                        </button>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('driver_trip_detail', trip_id=trip.id) }}" id="start-trip-form">
+                    <input type="hidden" name="action" value="start_trip">
+                    <input type="hidden" name="selfie_data" id="selfie-data">
+                    <input type="hidden" name="latitude" id="start-latitude">
+                    <input type="hidden" name="longitude" id="start-longitude">
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>This selfie is required for trip verification and will include your timestamp and location.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success" id="submit-start-trip" disabled>
+                            <i class="fas fa-play me-2"></i>Start Trip
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- End Trip Modal -->
+<div class="modal fade" id="endTripModal" tabindex="-1" aria-labelledby="endTripModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="endTripModalLabel">End Trip - Take Selfie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div id="end-camera-container">
+                        <video id="end-camera-view" autoplay></video>
+                        <img id="end-captured-image" alt="Captured image">
+                        <canvas id="end-canvas" style="display:none;"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        <button id="end-start-camera" class="btn btn-info mb-2">
+                            <i class="fas fa-camera me-2"></i>Start Camera
+                        </button>
+                        <button id="end-take-photo" class="btn btn-primary mb-2" style="display:none;">
+                            <i class="fas fa-camera me-2"></i>Take Photo
+                        </button>
+                        <button id="end-retake-photo" class="btn btn-secondary mb-2" style="display:none;">
+                            <i class="fas fa-redo me-2"></i>Retake
+                        </button>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('driver_trip_detail', trip_id=trip.id) }}" id="end-trip-form">
+                    <input type="hidden" name="action" value="end_trip">
+                    <input type="hidden" name="selfie_data" id="end-selfie-data">
+                    <input type="hidden" name="latitude" id="end-latitude">
+                    <input type="hidden" name="longitude" id="end-longitude">
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Make sure you are at the correct drop location before ending the trip.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger" id="submit-end-trip" disabled>
+                            <i class="fas fa-stop me-2"></i>End Trip
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let map, pickupMarker, dropMarker, driverMarker;
+    
+    // Initialize map and camera when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+        setupCamera('start');
+        setupCamera('end');
+    });
+    
+    function initMap() {
+        // Create map centered on pickup location
+        const pickupLocation = "{{ trip.pickup_location }}";
+        const pickupCoords = hashStringToCoords(pickupLocation);
+        
+        map = L.map('map').setView([pickupCoords.lat, pickupCoords.lng], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Add pickup marker
+        pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lng], {
+            icon: L.divIcon({
+                html: '<i class="fas fa-map-pin fa-2x text-success"></i>',
+                iconSize: [20, 20],
+                className: 'pickup-marker'
+            })
+        }).addTo(map);
+        pickupMarker.bindPopup('Pickup: {{ trip.pickup_location }}');
+        
+        // Add drop marker if available
+        {% if trip.drop_location %}
+        const dropLocation = "{{ trip.drop_location }}";
+        const dropCoords = hashStringToCoords(dropLocation, 0.05); // Offset for visualization
+        
+        dropMarker = L.marker([dropCoords.lat, dropCoords.lng], {
+            icon: L.divIcon({
+                html: '<i class="fas fa-flag-checkered fa-2x text-danger"></i>',
+                iconSize: [20, 20],
+                className: 'drop-marker'
+            })
+        }).addTo(map);
+        dropMarker.bindPopup('Drop: {{ trip.drop_location }}');
+        {% endif %}
+        
+        // Add driver marker (current location)
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                driverMarker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        html: '<i class="fas fa-car fa-2x text-primary"></i>',
+                        iconSize: [20, 20],
+                        className: 'driver-marker'
+                    })
+                }).addTo(map);
+                driverMarker.bindPopup('Your Current Location');
+                
+                // Update map view to show both pickup and driver
+                const bounds = L.latLngBounds([
+                    [pickupCoords.lat, pickupCoords.lng],
+                    [lat, lng]
+                ]);
+                map.fitBounds(bounds);
+            });
+        }
+    }
+    
+    // Set up camera for selfie
+    function setupCamera(prefix = '') {
+        const prePrefix = prefix ? prefix + '-' : '';
+        const cameraView = document.getElementById(prePrefix + 'camera-view');
+        const capturedImage = document.getElementById(prePrefix + 'captured-image');
+        const canvas = document.getElementById(prePrefix + 'canvas');
+        const startCameraBtn = document.getElementById(prePrefix + 'start-camera');
+        const takePhotoBtn = document.getElementById(prePrefix + 'take-photo');
+        const retakePhotoBtn = document.getElementById(prePrefix + 'retake-photo');
+        const selfieData = document.getElementById(prePrefix + 'selfie-data');
+        const submitBtn = document.getElementById('submit-' + (prefix ? prefix + '-' : '') + 'trip');
+        const latitudeField = document.getElementById(prePrefix + 'latitude');
+        const longitudeField = document.getElementById(prePrefix + 'longitude');
+        
+        let stream = null;
+        
+        // Start camera
+        startCameraBtn.addEventListener('click', function() {
+            // Get user's location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    latitudeField.value = position.coords.latitude;
+                    longitudeField.value = position.coords.longitude;
+                    
+                    // Start camera after getting location
+                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+                            .then(function(mediaStream) {
+                                stream = mediaStream;
+                                cameraView.srcObject = stream;
+                                cameraView.style.display = 'block';
+                                capturedImage.style.display = 'none';
+                                startCameraBtn.style.display = 'none';
+                                takePhotoBtn.style.display = 'inline-block';
+                            })
+                            .catch(function(error) {
+                                console.error('Error accessing camera:', error);
+                                alert('Unable to access camera. Please ensure camera permissions are granted.');
+                            });
+                    } else {
+                        alert('Your browser does not support camera access.');
+                    }
+                }, function(error) {
+                    console.error('Error getting location:', error);
+                    alert('Unable to get your location. Please ensure location permissions are granted.');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        });
+        
+        // Take photo
+        takePhotoBtn.addEventListener('click', function() {
+            // Set canvas dimensions
+            canvas.width = cameraView.videoWidth;
+            canvas.height = cameraView.videoHeight;
+            
+            // Draw current frame from video to canvas
+            const context = canvas.getContext('2d');
+            context.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
+            
+            // Convert to base64 for form submission
+            const imageData = canvas.toDataURL('image/jpeg');
+            capturedImage.src = imageData;
+            selfieData.value = imageData;
+            
+            // Show captured image, hide video
+            cameraView.style.display = 'none';
+            capturedImage.style.display = 'block';
+            takePhotoBtn.style.display = 'none';
+            retakePhotoBtn.style.display = 'inline-block';
+            
+            // Enable form submission
+            submitBtn.disabled = false;
+            
+            // Stop camera stream
+            if (stream) {
+                stream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            }
+        });
+        
+        // Retake photo
+        retakePhotoBtn.addEventListener('click', function() {
+            // Reset and restart camera
+            capturedImage.style.display = 'none';
+            selfieData.value = '';
+            retakePhotoBtn.style.display = 'none';
+            startCameraBtn.style.display = 'inline-block';
+            submitBtn.disabled = true;
+        });
+    }
+    
+    // Helper function to generate consistent coordinates from a string
+    function hashStringToCoords(str, offset = 0) {
+        let h1 = 0, h2 = 0;
+        for (let i = 0; i < str.length; i++) {
+            h1 = ((h1 << 5) - h1) + str.charCodeAt(i);
+            h2 = ((h2 << 5) - h2) + str.charCodeAt(i);
+        }
+        
+        // Base coordinates (Delhi, India)
+        const baseLatitude = 28.6139;
+        const baseLongitude = 77.2090;
+        
+        // Generate a small variation based on the hash
+        const latVariation = (h1 % 1000) / 10000 + offset;
+        const lngVariation = (h2 % 1000) / 10000 + offset;
+        
+        return {
+            lat: baseLatitude + latVariation,
+            lng: baseLongitude + lngVariation
+        };
+    }
+</script>
+{% endblock %}

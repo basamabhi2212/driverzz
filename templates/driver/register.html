@@ -1,0 +1,163 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Driver Registration {% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card bg-dark text-white shadow-lg">
+            <div class="card-header text-center">
+                <h3><i class="fas fa-user-plus me-2"></i>Driver Registration</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('driver_register') }}">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone_number" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email (Optional)</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">Create a strong password with at least 8 characters.</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="license_number" class="form-label">License Number</label>
+                            <input type="text" class="form-control" id="license_number" name="license_number" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="license_issue_date" class="form-label">License Issue Date</label>
+                            <input type="date" class="form-control" id="license_issue_date" name="license_issue_date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="license_expiry_date" class="form-label">License Expiry Date</label>
+                        <input type="date" class="form-control" id="license_expiry_date" name="license_expiry_date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="current_address" class="form-label">Current Address</label>
+                        <textarea class="form-control" id="current_address" name="current_address" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="permanent_address" class="form-label">Permanent Address</label>
+                        <textarea class="form-control" id="permanent_address" name="permanent_address" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>After registration, your account will be reviewed by our admin team. You'll be notified once your account is approved.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">Already have an account? <a href="{{ url_for('driver_login') }}">Login</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Requirements Section -->
+<div class="card bg-dark text-white shadow mt-4">
+    <div class="card-header">
+        <h4 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Driver Requirements</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-id-card me-2 text-warning"></i>Document Requirements</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item bg-dark text-white border-secondary">Valid Driver's License</li>
+                            <li class="list-group-item bg-dark text-white border-secondary">Address Proof</li>
+                            <li class="list-group-item bg-dark text-white border-secondary">Professional Experience (if any)</li>
+                            <li class="list-group-item bg-dark text-white border-secondary">Background Verification Consent</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-thumbs-up me-2 text-success"></i>Benefits</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item bg-dark text-white border-secondary">Flexible Working Hours</li>
+                            <li class="list-group-item bg-dark text-white border-secondary">Competitive Pay (₹86-96/hr)</li>
+                            <li class="list-group-item bg-dark text-white border-secondary">Regular Payment Cycles</li>
+                            <li class="list-group-item bg-dark text-white border-secondary">Customer Network Building</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set max date for license issue date (today)
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('license_issue_date').max = today;
+        
+        // Set min date for license expiry date (tomorrow)
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        document.getElementById('license_expiry_date').min = tomorrowStr;
+        
+        // Set permanent address = current address checkbox
+        const currentAddressInput = document.getElementById('current_address');
+        const permanentAddressInput = document.getElementById('permanent_address');
+        
+        // Add checkbox to copy address
+        const formGroup = permanentAddressInput.parentElement;
+        const checkbox = document.createElement('div');
+        checkbox.className = 'form-check mt-2';
+        checkbox.innerHTML = `
+            <input class="form-check-input" type="checkbox" id="same_as_current">
+            <label class="form-check-label" for="same_as_current">
+                Same as current address
+            </label>
+        `;
+        formGroup.appendChild(checkbox);
+        
+        // Add event listener to checkbox
+        document.getElementById('same_as_current').addEventListener('change', function() {
+            if (this.checked) {
+                permanentAddressInput.value = currentAddressInput.value;
+                permanentAddressInput.disabled = true;
+            } else {
+                permanentAddressInput.disabled = false;
+            }
+        });
+        
+        // Update permanent address when current address changes and checkbox is checked
+        currentAddressInput.addEventListener('input', function() {
+            if (document.getElementById('same_as_current').checked) {
+                permanentAddressInput.value = this.value;
+            }
+        });
+    });
+</script>
+{% endblock %}
