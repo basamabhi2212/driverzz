@@ -1,0 +1,103 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Home {% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center bg-dark text-white py-5 rounded-3 shadow">
+    <h1 class="display-4">Welcome to Driver Management Platform</h1>
+    <p class="lead">Connecting drivers with car owners for a seamless experience</p>
+    <hr class="my-4">
+    <p>Our platform provides comprehensive solutions for managing drivers, trips, and payments.</p>
+    <div class="mt-4">
+        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('customer_login') }}" role="button">
+            <i class="fas fa-user me-2"></i>Customer Login
+        </a>
+        <a class="btn btn-success btn-lg me-2" href="{{ url_for('driver_login') }}" role="button">
+            <i class="fas fa-car me-2"></i>Driver Login
+        </a>
+        <a class="btn btn-info btn-lg" href="{{ url_for('admin_login') }}" role="button">
+            <i class="fas fa-user-cog me-2"></i>Admin Login
+        </a>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 bg-dark text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-user-tie display-4 mb-3 text-primary"></i>
+                <h3 class="card-title">For Admins</h3>
+                <p class="card-text">Manage drivers, trips, and user permissions. Track drivers in real-time and generate financial reports.</p>
+                <a href="{{ url_for('admin_login') }}" class="btn btn-outline-primary">Admin Portal</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 bg-dark text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-car display-4 mb-3 text-success"></i>
+                <h3 class="card-title">For Drivers</h3>
+                <p class="card-text">Manage your trips, view assigned trips, update your location, and track your payments.</p>
+                <a href="{{ url_for('driver_login') }}" class="btn btn-outline-success">Driver Portal</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 bg-dark text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-users display-4 mb-3 text-info"></i>
+                <h3 class="card-title">For Customers</h3>
+                <p class="card-text">Book trips, view trip history, track your driver's location, and manage payments.</p>
+                <a href="{{ url_for('customer_login') }}" class="btn btn-outline-info">Customer Portal</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h2 class="text-center mb-4">Features</h2>
+    <div class="row">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 bg-dark text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-route text-primary mb-3"></i>
+                    <h5 class="card-title">Trip Management</h5>
+                    <p class="card-text">Book, track, and manage trips with ease.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 bg-dark text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-map-marked-alt text-success mb-3"></i>
+                    <h5 class="card-title">Real-time Tracking</h5>
+                    <p class="card-text">Track driver locations in real-time during trips.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 bg-dark text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-invoice-dollar text-warning mb-3"></i>
+                    <h5 class="card-title">Financial Management</h5>
+                    <p class="card-text">Manage payments, invoices, and financial reports.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 bg-dark text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-bell text-danger mb-3"></i>
+                    <h5 class="card-title">Notifications</h5>
+                    <p class="card-text">Receive alerts for upcoming trips and driver licenses.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
