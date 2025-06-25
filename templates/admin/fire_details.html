@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+
+{% block title %}Trip Estimation{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h2>Trip Estimation Calculator</h2>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">Trip Start Date & Time:</label>
+        <input type="datetime-local" id="startTime" class="form-control" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Trip End Date & Time:</label>
+        <input type="datetime-local" id="endTime" class="form-control" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Uniform:</label>
+        <select id="uniform" class="form-select">
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Trip Type:</label>
+        <select id="tripType" class="form-select">
+          <option value="Instation">Instation</option>
+          <option value="Outstation">Outstation</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Mode:</label>
+        <select id="mode" class="form-select">
+          <option value="One Way">One Way</option>
+          <option value="Round Trip">Round Trip</option>
+        </select>
+      </div>
+
+      <button onclick="calculateFare()" class="btn btn-primary">Calculate Fare</button>
+
+      <div id="result" class="mt-4 p-3 border rounded" style="background-color: #1a1a1a; color: #4CAF50;"></div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const encodedFareChart = 'eyJObyI6eyJJbnN0YXRpb24iOnsicm91bmQgVHJpcCI6WzIuMiwyLjU1LDIuMSwyLjUsMi4wNSwyLjM1LDEuODUsMi4zLDEuNjUsMS45LDEuNDUsMS41LDEuMSwxLjBdLCJPbmUgV2F5IjpbMi42LDUuNDUsMi41NSw1LDIuMzUsNC41LDIuMSwzLjA1LDIuMDUsMi41NSwxLjc1LDEuODUsMS40NSwxLjI1XX0sIk91dHN0YXRpb24iOnsicm91bmQgVHJpcCI6WzIuNTUsMywyLjUsMi45NSwyLjIsMi40LDIuMSwyLjM1LDEuOTUsMi4yLDEuNiwyLjEsMS4xNSwxLjFdLCJPbmUgV2F5IjpbNi4xLDYuMSw1LjgsNS44LDUuOCw1LjgsNS44LDUuOCw1LjEsNS4xLDMuNywzLjcsMi45NSwyLjEwXX19LCJZZXMiOnsiSW5zdGF0aW9uIjp7InJvdW5kIFRyaXAiOlsyLjI1LDIuNiwyLjE1LDIuNTUsMi4xLDIuNCwxLjksMi4zNSwxLjcsMS45NSwxLjUsMS41NSwxLjE1LDEuMTBdLCJPbmUgV2F5IjpbMi42NSw1LjUsMi42LDUuMDUsMi40LDQuNTUsMi4xNSwzLjEsMi4xLDIuNiwyLjQsMS45LDEuNSwxLjMwXX0sIk91dHN0YXRpb24iOnsicm91bmQgVHJpcCI6WzIuNiwyLjA1LDIuNTUsMywyLjI1LDIuNDUsMi4xNSwyLjQsMiwyLjI1LDEuNjUsMS42NSwxLjIsMS4xNV0sIk9uZSBXYXkiOls2LjE1LDYuMTUsNS44NSw1Ljg1LDUuODUsNS44NSw1Ljg1LDUuODUsNS4xNSw1LjE1LDMuNzUsMy43NSwzLDMuMTVdfX19';
+  const fareChart = JSON.parse(atob(encodedFareChart));
+
+  function getFarePerMinute(minutes, isNight, uniform, tripType, mode) {
+    const priceArray = fareChart[uniform][tripType][mode.toLowerCase().includes("round") ? "round Trip" : "One Way"];
+    const i = isNight ? 1 : 0;
+    if (minutes <= 120) return priceArray[0 + i];
+    if (minutes <= 240) return priceArray[2 + i];
+    if (minutes <= 480) return priceArray[4 + i];
+    if (minutes <= 720) return priceArray[6 + i];
+    if (minutes <= 1080) return priceArray[8 + i];
+    if (minutes <= 1440) return priceArray[10 + i];
+    if (minutes <= 8640) return priceArray[12];
+    return priceArray[13];
+  }
+
+  function isNightTime(hour) {
+    return hour >= 22 || hour < 6;
+  }
+
+  function calculateFare() {
+    const start = new Date(document.getElementById("startTime").value);
+    const end = new Date(document.getElementById("endTime").value);
+    const uniform = document.getElementById("uniform").value;
+    const tripType = document.getElementById("tripType").value;
+    const mode = document.getElementById("mode").value;
+
+    if (isNaN(start) || isNaN(end) || end <= start) {
+      alert("Please enter valid start and end times.");
+      return;
+    }
+
+    const rawMinutes = Math.round((end - start) / 60000);
+    const minutes = Math.max(rawMinutes, 120); // Minimum 120 minutes
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    const startHour = start.getHours();
+
+    const night = isNightTime(startHour);
+    const farePerMin = getFarePerMinute(minutes, night, uniform, tripType, mode);
+
+    const base = farePerMin * minutes;
+    const gst = base * 0.18;
+    const total = base + gst;
+
+    const roundedTotal = (total % 1 >= 0.5) ? Math.ceil(total) : Math.floor(total);
+
+    document.getElementById("result").innerHTML = `
+      <h5 class="mb-3" style="color: #4CAF50;">Fare Estimation Results</h5>
+      <div style="font-family: monospace; font-size: 1.1em;">
+        <p>Total Minutes: ${rawMinutes} minutes (charged for ${minutes} minutes)</p>
+        <p>Hours & Minutes: ${hours} hrs ${mins} mins</p>
+        <p>Fare/Min: ₹${farePerMin.toFixed(2)}</p>
+        <p>Base Price: ₹${base.toFixed(2)}</p>
+        <p>GST (18%): ₹${gst.toFixed(2)}</p>
+        <p style="font-size: 1.3em; margin-top: 15px;"><strong>Total Price: ₹${roundedTotal}</strong></p>
+      </div>
+    `;
+  }
+</script>
+{% endblock %}

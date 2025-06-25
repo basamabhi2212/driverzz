@@ -1,0 +1,229 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Reports {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-chart-line me-2"></i>Reports</h1>
+</div>
+
+<!-- Report Filters -->
+<div class="card bg-dark text-white shadow mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Report Filters</h5>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('admin_reports') }}" method="GET">
+            <div class="row align-items-end">
+                <div class="col-md-3 mb-3">
+                    <label for="report_type" class="form-label">Report Type</label>
+                    <select class="form-select" id="report_type" name="report_type">
+                        <option value="daily" {% if report_type == 'daily' %}selected{% endif %}>Daily</option>
+                        <option value="weekly" {% if report_type == 'weekly' %}selected{% endif %}>Weekly</option>
+                        <option value="monthly" {% if report_type == 'monthly' %}selected{% endif %}>Monthly</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date.strftime('%Y-%m-%d') }}">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date.strftime('%Y-%m-%d') }}">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Generate Report
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Report Summary -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 bg-dark text-white">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Trips</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ report_data.total_trips }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-car fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 bg-dark text-white">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Completed Trips</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ report_data.completed_trips }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 bg-dark text-white">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Total Revenue</div>
+                        <div class="h5 mb-0 font-weight-bold">₹{{ "%.2f"|format(report_data.total_revenue) }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-rupee-sign fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 bg-dark text-white">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Avg Trip Duration</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ "%.2f"|format(report_data.avg_trip_duration) }} hrs</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Data -->
+<div class="card bg-dark text-white shadow">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-table me-2"></i>Trip Report</h5>
+        <button class="btn btn-sm btn-primary" onclick="exportToCSV()">
+            <i class="fas fa-download me-2"></i>Download CSV
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped" id="report-table">
+                <thead>
+                    <tr>
+                        <th>Trip ID</th>
+                        <th>Customer</th>
+                        <th>Driver</th>
+                        <th>Trip Date</th>
+                        <th>Trip Type</th>
+                        <th>Status</th>
+                        <th>Duration (hrs)</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trip in trips %}
+                    <tr>
+                        <td>{{ trip.id }}</td>
+                        <td>{{ trip.customer.name }}</td>
+                        <td>{{ trip.driver.name if trip.driver else 'Not Assigned' }}</td>
+                        <td>{{ trip.trip_start_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ trip.trip_type.value }}</td>
+                        <td>
+                            {% if trip.status.value == 'Pending' %}
+                            <span class="badge bg-warning text-dark">{{ trip.status.value }}</span>
+                            {% elif trip.status.value == 'Assigned' %}
+                            <span class="badge bg-info text-dark">{{ trip.status.value }}</span>
+                            {% elif trip.status.value == 'Started' %}
+                            <span class="badge bg-primary">{{ trip.status.value }}</span>
+                            {% elif trip.status.value == 'Completed' %}
+                            <span class="badge bg-success">{{ trip.status.value }}</span>
+                            {% elif trip.status.value == 'Cancelled' %}
+                            <span class="badge bg-danger">{{ trip.status.value }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ "%.2f"|format(trip.total_hours or 0) }}</td>
+                        <td>₹{{ "%.2f"|format(trip.total_amount or 0) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function exportToCSV() {
+        const table = document.getElementById('report-table');
+        let csv = [];
+        let rows = table.querySelectorAll('tr');
+        
+        for (let i = 0; i < rows.length; i++) {
+            let row = [], cols = rows[i].querySelectorAll('td, th');
+            
+            for (let j = 0; j < cols.length; j++) {
+                // Get the text content and handle special characters
+                let text = cols[j].textContent.trim();
+                text = text.replace(/"/g, '""'); // Escape double quotes
+                row.push('"' + text + '"');
+            }
+            
+            csv.push(row.join(','));
+        }
+        
+        const csvString = csv.join('\n');
+        const filename = 'trip_report_{{ start_date.strftime("%Y-%m-%d") }}_to_{{ end_date.strftime("%Y-%m-%d") }}.csv';
+        
+        // Create a download link and trigger click
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    
+    // Preselect common date ranges
+    document.getElementById('report_type').addEventListener('change', function() {
+        const reportType = this.value;
+        const today = new Date();
+        const startDate = document.getElementById('start_date');
+        const endDate = document.getElementById('end_date');
+        
+        if (reportType === 'daily') {
+            // Today
+            startDate.valueAsDate = today;
+            endDate.valueAsDate = today;
+        } else if (reportType === 'weekly') {
+            // Last 7 days
+            const weekAgo = new Date();
+            weekAgo.setDate(today.getDate() - 7);
+            startDate.valueAsDate = weekAgo;
+            endDate.valueAsDate = today;
+        } else if (reportType === 'monthly') {
+            // Last 30 days
+            const monthAgo = new Date();
+            monthAgo.setDate(today.getDate() - 30);
+            startDate.valueAsDate = monthAgo;
+            endDate.valueAsDate = today;
+        }
+    });
+</script>
+{% endblock %}

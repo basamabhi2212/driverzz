@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block title %}Update Fire Detail{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h2 class="mb-0">Update Fire Detail: {{ fire_detail.fire_id }}</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('update_fire_detail', fire_id=fire_detail.id) }}">
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location *</label>
+                            <input type="text" class="form-control" id="location" name="location" required 
+                                   value="{{ fire_detail.location }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="date_time" class="form-label">Date & Time *</label>
+                            <input type="datetime-local" class="form-control" id="date_time" name="date_time" required
+                                   value="{{ fire_detail.date_time.strftime('%Y-%m-%dT%H:%M') }}">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status *</label>
+                                    <select class="form-select" id="status" name="status" required>
+                                        <option value="Active" {% if fire_detail.status == 'Active' %}selected{% endif %}>Active</option>
+                                        <option value="Contained" {% if fire_detail.status == 'Contained' %}selected{% endif %}>Contained</option>
+                                        <option value="Extinguished" {% if fire_detail.status == 'Extinguished' %}selected{% endif %}>Extinguished</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="severity" class="form-label">Severity *</label>
+                                    <select class="form-select" id="severity" name="severity" required>
+                                        <option value="Low" {% if fire_detail.severity == 'Low' %}selected{% endif %}>Low</option>
+                                        <option value="Medium" {% if fire_detail.severity == 'Medium' %}selected{% endif %}>Medium</option>
+                                        <option value="High" {% if fire_detail.severity == 'High' %}selected{% endif %}>High</option>
+                                        <option value="Critical" {% if fire_detail.severity == 'Critical' %}selected{% endif %}>Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4">{{ fire_detail.description }}</textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('fire_detail', fire_id=fire_detail.id) }}" class="btn btn-outline-secondary">
+                                <i class="fa fa-arrow-left"></i> Back to Fire Detail
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-save"></i> Update Fire Detail
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

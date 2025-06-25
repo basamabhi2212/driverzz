@@ -1,0 +1,180 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Customer Details {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user me-2"></i>Customer Details</h1>
+    <div>
+        <a href="{{ url_for('customer_management') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Customers
+        </a>
+    </div>
+</div>
+
+<!-- Customer Profile -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card bg-dark text-white shadow h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Customer Profile</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-dark">
+                    <tr>
+                        <th width="35%">Customer ID:</th>
+                        <td>{{ customer.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Name:</th>
+                        <td>{{ customer.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Mobile Number:</th>
+                        <td>{{ customer.mobile_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Vehicle Model:</th>
+                        <td>{{ customer.vehicle_model or 'Not Specified' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Home Address:</th>
+                        <td>{{ customer.home_address }}</td>
+                    </tr>
+                    <tr>
+                        <th>Office Address:</th>
+                        <td>{{ customer.office_address or 'Not Specified' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Registered On:</th>
+                        <td>{{ customer.created_at.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card bg-dark text-white shadow h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Customer Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-primary rounded">
+                            <h2>{{ trips|length }}</h2>
+                            <p class="mb-0">Total Trips</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-success rounded">
+                            <h2>{{ trips|selectattr('status.value', 'equalto', 'Completed')|list|length }}</h2>
+                            <p class="mb-0">Completed</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-warning text-dark rounded">
+                            <h2>₹{{ "%.0f"|format(trips|selectattr('status.value', 'equalto', 'Completed')|sum(attribute='total_amount')|default(0)) }}</h2>
+                            <p class="mb-0">Revenue</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="border-bottom pb-2 mb-3">Recent Activity</h6>
+                    {% if trips %}
+                    <ul class="list-group">
+                        {% for trip in trips[:3] %}
+                        <li class="list-group-item bg-dark text-white">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Trip #{{ trip.id }} - {{ trip.trip_start_date.strftime('%Y-%m-%d') }}</h6>
+                                <span class="badge 
+                                    {% if trip.status.value == 'Pending' %}bg-warning text-dark
+                                    {% elif trip.status.value == 'Assigned' %}bg-info text-dark
+                                    {% elif trip.status.value == 'Started' %}bg-primary
+                                    {% elif trip.status.value == 'Completed' %}bg-success
+                                    {% elif trip.status.value == 'Cancelled' %}bg-danger
+                                    {% endif %}">
+                                    {{ trip.status.value }}
+                                </span>
+                            </div>
+                            <p class="mb-1">{{ trip.pickup_location }} {% if trip.drop_location %}to {{ trip.drop_location }}{% endif %}</p>
+                            {% if trip.status.value == 'Completed' %}
+                            <small>Amount: ₹{{ "%.2f"|format(trip.total_amount or 0) }}</small>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No trip history available
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Trips -->
+<div class="card bg-dark text-white shadow">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-route me-2"></i>Trip History</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Trip ID</th>
+                        <th>Trip Date</th>
+                        <th>Trip Type</th>
+                        <th>Pickup</th>
+                        <th>Drop</th>
+                        <th>Driver</th>
+                        <th>Status</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trip in trips %}
+                    <tr>
+                        <td>{{ trip.id }}</td>
+                        <td>{{ trip.trip_start_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ trip.trip_type.value }}</td>
+                        <td>{{ trip.pickup_location }}</td>
+                        <td>{{ trip.drop_location or '-' }}</td>
+                        <td>{{ trip.driver.name if trip.driver else 'Not Assigned' }}</td>
+                        <td>
+                            {% if trip.status.value == 'Pending' %}
+                            <span class="badge bg-warning text-dark">{{ trip.status.value }}</span>
+                            {% elif trip.status.value == 'Assigned' %}
+                            <span class="badge bg-info text-dark">{{ trip.status.value }}</span>
+                            {% elif trip.status.value == 'Started' %}
+                            <span class="badge bg-primary">{{ trip.status.value }}</span>
+                            {% elif trip.status.value == 'Completed' %}
+                            <span class="badge bg-success">{{ trip.status.value }}</span>
+                            {% elif trip.status.value == 'Cancelled' %}
+                            <span class="badge bg-danger">{{ trip.status.value }}</span>
+                            {% endif %}
+                        </td>
+                        <td>₹{{ "%.2f"|format(trip.total_amount or 0) }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_trip_detail', trip_id=trip.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center">No trips found for this customer.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

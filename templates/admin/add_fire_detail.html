@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block title %}Add New Fire Detail{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h2 class="mb-0">Add New Fire Detail</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('add_fire_detail') }}">
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location *</label>
+                            <input type="text" class="form-control" id="location" name="location" required placeholder="Enter full address of fire incident">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="date_time" class="form-label">Date & Time *</label>
+                            <input type="datetime-local" class="form-control" id="date_time" name="date_time" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status *</label>
+                                    <select class="form-select" id="status" name="status" required>
+                                        <option value="" selected disabled>Select status</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Contained">Contained</option>
+                                        <option value="Extinguished">Extinguished</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="severity" class="form-label">Severity *</label>
+                                    <select class="form-select" id="severity" name="severity" required>
+                                        <option value="" selected disabled>Select severity</option>
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Critical">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter detailed description of the fire incident"></textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('fire_details') }}" class="btn btn-outline-secondary">
+                                <i class="fa fa-arrow-left"></i> Back to Fire Details
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-save"></i> Save Fire Detail
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

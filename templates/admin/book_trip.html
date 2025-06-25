@@ -1,0 +1,120 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Book Trip {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-car me-2"></i>Book Trip for Customer</h1>
+    <a href="{{ url_for('trip_management') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Trips
+    </a>
+</div>
+
+<div class="card bg-dark text-white shadow">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-plane-departure me-2"></i>Trip Details</h5>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('admin_book_trip') }}" method="POST">
+            <div class="mb-3">
+                <label for="customer_id" class="form-label">Select Customer</label>
+                <select class="form-select" id="customer_id" name="customer_id" required>
+                    <option value="">-- Select Customer --</option>
+                    {% for customer in customers %}
+                    <option value="{{ customer.id }}">{{ customer.name }} ({{ customer.mobile_number }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="trip_start_date" class="form-label">Trip Start Date & Time</label>
+                    <input type="datetime-local" class="form-control" id="trip_start_date" name="trip_start_date" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="trip_end_date" class="form-label">Trip End Date & Time</label>
+                    <input type="datetime-local" class="form-control" id="trip_end_date" name="trip_end_date" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="trip_type" class="form-label">Trip Type</label>
+                    <select class="form-select" id="trip_type" name="trip_type" required>
+                        <option value="">-- Select Trip Type --</option>
+                        {% for trip_type in trip_types %}
+                        <option value="{{ trip_type }}">{{ trip_type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="route_type" class="form-label">Route Type</label>
+                    <select class="form-select" id="route_type" name="route_type" required>
+                        <option value="">-- Select Route Type --</option>
+                        {% for route_type in route_types %}
+                        <option value="{{ route_type }}">{{ route_type }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">In Station: within city, Out Station: outside city</small>
+                </div>
+                <div class="col-md-4">
+                    <label for="driver_id" class="form-label">Assign Driver (Optional)</label>
+                    <select class="form-select" id="driver_id" name="driver_id">
+                        <option value="">-- Select Driver --</option>
+                        {% for driver in drivers %}
+                        <option value="{{ driver.id }}">{{ driver.name }} (ID: {{ driver.driver_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="pickup_location" class="form-label">Pickup Location</label>
+                <textarea class="form-control" id="pickup_location" name="pickup_location" rows="2" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="drop_location" class="form-label">Drop Location</label>
+                <textarea class="form-control" id="drop_location" name="drop_location" rows="2" required></textarea>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="reset" class="btn btn-outline-secondary me-md-2">
+                    <i class="fas fa-undo me-2"></i>Reset
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Book Trip
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Validation for dates
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            const startDate = new Date(document.getElementById('trip_start_date').value);
+            const endDate = new Date(document.getElementById('trip_end_date').value);
+            const now = new Date();
+
+            if (startDate < now) {
+                alert('Trip start date cannot be in the past.');
+                event.preventDefault();
+                return false;
+            }
+
+            if (endDate <= startDate) {
+                alert('Trip end date must be after the start date.');
+                event.preventDefault();
+                return false;
+            }
+
+            return true;
+        });
+    });
+</script>
+{% endblock %}

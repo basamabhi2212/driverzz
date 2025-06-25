@@ -1,0 +1,207 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Add User {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user-plus me-2"></i>Add User</h1>
+    <div>
+        <a href="{{ url_for('user_management') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to User Management
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark text-white shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Create New Admin User</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_user') }}">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="employee_id" class="form-label">Employee ID</label>
+                            <input type="text" class="form-control" id="employee_id" name="employee_id" required>
+                            <div class="form-text">Unique identifier for this employee</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="phone_number" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="office_address" class="form-label">Office Address</label>
+                        <textarea class="form-control" id="office_address" name="office_address" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select" id="role" name="role" required>
+                                {% for role in roles %}
+                                <option value="{{ role }}">{{ role }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Determines user permissions and access levels</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Initial Password</label>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" 
+                                   title="Password must be at least 8 characters and include uppercase, lowercase, number and special character" required>
+                            <div class="form-text">Minimum 8 characters with uppercase, lowercase, number, and special character</div>
+                            
+                            <div class="mt-3">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                <div class="form-text">Both passwords must match</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Password validation message -->
+                    <div class="alert alert-danger d-none" id="password-mismatch-alert">
+                        Passwords do not match! Please make sure both password fields have the same value.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary" id="submit-button">Create User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Role Information -->
+<div class="row mt-4">
+    <div class="col-lg-8 mx-auto">
+        <div class="card bg-dark text-white shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Role Permissions</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Description</th>
+                                <th>Key Permissions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-danger">Admin</span></td>
+                                <td>Super administrator with full access to all features</td>
+                                <td>
+                                    <ul class="mb-0">
+                                        <li>Create/edit admin users</li>
+                                        <li>Full access to all modules</li>
+                                        <li>System configuration</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">Manager</span></td>
+                                <td>Oversees operations and team management</td>
+                                <td>
+                                    <ul class="mb-0">
+                                        <li>Manage trips and drivers</li>
+                                        <li>View reports and financials</li>
+                                        <li>Cannot create admin users</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success">Finance</span></td>
+                                <td>Handles financial aspects of the platform</td>
+                                <td>
+                                    <ul class="mb-0">
+                                        <li>Process payments</li>
+                                        <li>Generate invoices</li>
+                                        <li>Financial reporting</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning text-dark">Operations</span></td>
+                                <td>Manages day-to-day operations</td>
+                                <td>
+                                    <ul class="mb-0">
+                                        <li>Assign drivers to trips</li>
+                                        <li>Track trip status</li>
+                                        <li>Handle customer support</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-info text-dark">Driver Recruitment</span></td>
+                                <td>Handles driver onboarding and management</td>
+                                <td>
+                                    <ul class="mb-0">
+                                        <li>Approve/reject drivers</li>
+                                        <li>Monitor license expiry</li>
+                                        <li>Driver documentation</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const mismatchAlert = document.getElementById('password-mismatch-alert');
+    const submitButton = document.getElementById('submit-button');
+    const form = document.querySelector('form');
+    
+    // Check if passwords match and display alert if they don't
+    function validatePasswords() {
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            mismatchAlert.classList.remove('d-none');
+            return false;
+        } else {
+            mismatchAlert.classList.add('d-none');
+            return true;
+        }
+    }
+    
+    // Validate on input change
+    passwordInput.addEventListener('input', validatePasswords);
+    confirmPasswordInput.addEventListener('input', validatePasswords);
+    
+    // Validate on form submission
+    form.addEventListener('submit', function(event) {
+        if (!validatePasswords()) {
+            event.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

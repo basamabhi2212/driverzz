@@ -1,0 +1,151 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Add New Driver {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user-plus me-2"></i>Add New Driver</h1>
+    <a href="{{ url_for('driver_management') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Driver Management
+    </a>
+</div>
+
+<div class="card bg-dark text-white shadow">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('add_driver') }}">
+            <div class="row">
+                <!-- Personal Information -->
+                <div class="col-md-6">
+                    <h4 class="mb-3">Personal Information</h4>
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phone_number" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="phone_number" name="phone_number" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                </div>
+                
+                <!-- License Information -->
+                <div class="col-md-6">
+                    <h4 class="mb-3">License Information</h4>
+                    
+                    <div class="mb-3">
+                        <label for="license_number" class="form-label">License Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="license_number" name="license_number" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="license_issue_date" class="form-label">License Issue Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="license_issue_date" name="license_issue_date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="license_expiry_date" class="form-label">License Expiry Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="license_expiry_date" name="license_expiry_date" required>
+                    </div>
+                </div>
+                
+                <!-- Address Information -->
+                <div class="col-12 mt-3">
+                    <h4 class="mb-3">Address Information</h4>
+                    
+                    <div class="mb-3">
+                        <label for="current_address" class="form-label">Current Address <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="current_address" name="current_address" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="permanent_address" class="form-label">Permanent Address</label>
+                        <textarea class="form-control" id="permanent_address" name="permanent_address" rows="2"></textarea>
+                        <small class="text-muted">Leave blank if same as current address</small>
+                    </div>
+                </div>
+                
+                <!-- Status Settings -->
+                <div class="col-12 mt-3">
+                    <h4 class="mb-3">Driver Status</h4>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="is_approved" name="is_approved" checked>
+                        <label class="form-check-label" for="is_approved">Approved for service</label>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                        <label class="form-check-label" for="is_active">Active (can be assigned to trips)</label>
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="col-12 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Add Driver
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set min date for license issue date to 10 years ago
+        const licenseIssueDate = document.getElementById('license_issue_date');
+        const tenYearsAgo = new Date();
+        tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+        licenseIssueDate.setAttribute('max', new Date().toISOString().split('T')[0]);
+        
+        // Set min date for license expiry date to today
+        const licenseExpiryDate = document.getElementById('license_expiry_date');
+        licenseExpiryDate.setAttribute('min', new Date().toISOString().split('T')[0]);
+        
+        // Optional: Copy current address to permanent address with a checkbox
+        const currentAddress = document.getElementById('current_address');
+        const permanentAddress = document.getElementById('permanent_address');
+        
+        // Add a checkbox for same address
+        const addressRow = permanentAddress.closest('.mb-3');
+        const sameAddressDiv = document.createElement('div');
+        sameAddressDiv.className = 'form-check mt-2';
+        sameAddressDiv.innerHTML = `
+            <input class="form-check-input" type="checkbox" id="same_address">
+            <label class="form-check-label" for="same_address">Same as current address</label>
+        `;
+        addressRow.appendChild(sameAddressDiv);
+        
+        // Handle checkbox change
+        const sameAddressCheckbox = document.getElementById('same_address');
+        sameAddressCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                permanentAddress.value = currentAddress.value;
+                permanentAddress.setAttribute('readonly', true);
+            } else {
+                permanentAddress.removeAttribute('readonly');
+            }
+        });
+        
+        // Update permanent address when current address changes if checkbox is checked
+        currentAddress.addEventListener('input', function() {
+            if (sameAddressCheckbox.checked) {
+                permanentAddress.value = this.value;
+            }
+        });
+    });
+</script>
+{% endblock %}

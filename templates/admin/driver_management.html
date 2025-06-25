@@ -1,0 +1,162 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Driver Management {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-id-card me-2"></i>Driver Management</h1>
+    <a href="{{ url_for('add_driver') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New Driver
+    </a>
+</div>
+
+<!-- Filters and Search -->
+<div class="card bg-dark text-white shadow mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filters</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label for="status-filter" class="form-label">Status</label>
+                <select class="form-select" id="status-filter">
+                    <option value="all">All Statuses</option>
+                    <option value="approved">Approved</option>
+                    <option value="pending">Pending Approval</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="license-filter" class="form-label">License Status</label>
+                <select class="form-select" id="license-filter">
+                    <option value="all">All</option>
+                    <option value="valid">Valid</option>
+                    <option value="expiring">Expiring Soon</option>
+                    <option value="expired">Expired</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="search-input" class="form-label">Search</label>
+                <input type="text" class="form-control" id="search-input" placeholder="Search by name, ID, or phone...">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Drivers Table -->
+<div class="card bg-dark text-white shadow">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Drivers</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Driver ID</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>License Number</th>
+                        <th>License Expiry</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="drivers-table-body">
+                    {% for driver in drivers %}
+                    <tr class="driver-row" 
+                        data-approved="{{ 'approved' if driver.is_approved else 'pending' }}"
+                        data-active="{{ 'active' if driver.is_active else 'inactive' }}">
+                        <td>{{ driver.driver_id }}</td>
+                        <td>{{ driver.name }}</td>
+                        <td>{{ driver.phone_number }}</td>
+                        <td>{{ driver.license_number }}</td>
+                        <td>
+                            {{ driver.license_expiry_date.strftime('%Y-%m-%d') }}
+                            {% if (driver.license_expiry_date - now).days <= 30 and (driver.license_expiry_date - now).days > 0 %}
+                            <span class="badge bg-warning text-dark">Expiring Soon</span>
+                            {% elif driver.license_expiry_date < now %}
+                            <span class="badge bg-danger">Expired</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not driver.is_approved %}
+                            <span class="badge bg-warning text-dark">Pending Approval</span>
+                            {% elif not driver.is_active %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% else %}
+                            <span class="badge bg-success">Active</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_driver_detail', driver_id=driver.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('track_driver', driver_id=driver.id) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Status filter
+        const statusFilter = document.getElementById('status-filter');
+        statusFilter.addEventListener('change', filterDrivers);
+        
+        // License filter
+        const licenseFilter = document.getElementById('license-filter');
+        licenseFilter.addEventListener('change', filterDrivers);
+        
+        // Search input
+        const searchInput = document.getElementById('search-input');
+        searchInput.addEventListener('input', filterDrivers);
+        
+        function filterDrivers() {
+            const status = statusFilter.value;
+            const licenseStatus = licenseFilter.value;
+            const searchText = searchInput.value.toLowerCase();
+            
+            const rows = document.querySelectorAll('#drivers-table-body tr');
+            
+            rows.forEach(row => {
+                let showRow = true;
+                
+                // Status filter
+                if (status === 'approved' && row.dataset.approved !== 'approved') {
+                    showRow = false;
+                } else if (status === 'pending' && row.dataset.approved !== 'pending') {
+                    showRow = false;
+                } else if (status === 'active' && (row.dataset.active !== 'active' || row.dataset.approved !== 'approved')) {
+                    showRow = false;
+                } else if (status === 'inactive' && row.dataset.active !== 'inactive') {
+                    showRow = false;
+                }
+                
+                // License filter - simplified for demo
+                if (licenseStatus === 'expiring' && !row.textContent.includes('Expiring Soon')) {
+                    showRow = false;
+                } else if (licenseStatus === 'expired' && !row.textContent.includes('Expired')) {
+                    showRow = false;
+                }
+                
+                // Search filter
+                if (searchText && !row.textContent.toLowerCase().includes(searchText)) {
+                    showRow = false;
+                }
+                
+                row.style.display = showRow ? '' : 'none';
+            });
+        }
+    });
+</script>
+{% endblock %}

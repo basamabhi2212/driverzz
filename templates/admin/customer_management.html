@@ -1,0 +1,140 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Customer Management {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-users me-2"></i>Customer Management</h1>
+    <a href="{{ url_for('add_customer') }}" class="btn btn-success">
+        <i class="fas fa-plus me-2"></i>Add New Customer
+    </a>
+</div>
+
+<!-- Search and Filter -->
+<div class="card bg-dark text-white shadow mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-search me-2"></i>Search Customers</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-9">
+                <input type="text" id="customer-search" class="form-control" placeholder="Search by name, mobile number, or vehicle model...">
+            </div>
+            <div class="col-md-3">
+                <button type="button" class="btn btn-primary w-100" onclick="searchCustomers()">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customers Table -->
+<div class="card bg-dark text-white shadow">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Customers</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Mobile Number</th>
+                        <th>Vehicle Model</th>
+                        <th>Registration Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="customers-table-body">
+                    {% for customer in customers %}
+                    <tr>
+                        <td>{{ customer.id }}</td>
+                        <td>{{ customer.name }}</td>
+                        <td>{{ customer.mobile_number }}</td>
+                        <td>{{ customer.vehicle_model or 'Not Specified' }}</td>
+                        <td>{{ customer.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_customer_detail', customer_id=customer.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Stats -->
+<div class="row mt-4">
+    <div class="col-md-4 mb-4">
+        <div class="card bg-dark text-white shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Customer Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Total Customers</h6>
+                    <h2>{{ customers|length }}</h2>
+                </div>
+                <div class="mb-3">
+                    <h6>New Customers (Last 30 Days)</h6>
+                    <h2>{{ customers|selectattr('created_at', 'ge', now - timedelta(days=30))|list|length }}</h2>
+                </div>
+                <div>
+                    <h6>Active Customers (With Trips)</h6>
+                    <h2>{{ customers|selectattr('trips', 'defined')|selectattr('trips', 'ne', [])|list|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8 mb-4">
+        <div class="card bg-dark text-white shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Customer Insights</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item bg-dark text-white">
+                        <h6 class="mb-1">Customer Engagement</h6>
+                        <p class="mb-0">Maintain regular communication to enhance customer engagement. Send notifications about promotions and new features.</p>
+                    </li>
+                    <li class="list-group-item bg-dark text-white">
+                        <h6 class="mb-1">Customer Feedback</h6>
+                        <p class="mb-0">Collect feedback after each trip to improve service quality and identify potential issues.</p>
+                    </li>
+                    <li class="list-group-item bg-dark text-white">
+                        <h6 class="mb-1">Customer Retention</h6>
+                        <p class="mb-0">Offer loyalty programs and discounts for frequent customers to increase retention rates.</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function searchCustomers() {
+        const searchText = document.getElementById('customer-search').value.toLowerCase();
+        const rows = document.querySelectorAll('#customers-table-body tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchText) ? '' : 'none';
+        });
+    }
+    
+    // Event listener for Enter key in search box
+    document.getElementById('customer-search').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            searchCustomers();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+
+{% block title %}Fire Detail #{{ fire_detail.fire_id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Fire Incident: {{ fire_detail.fire_id }}</h2>
+            <div>
+                <a href="{{ url_for('update_fire_detail', fire_id=fire_detail.id) }}" class="btn btn-outline-primary">
+                    <i class="fa fa-edit"></i> Edit
+                </a>
+                <a href="{{ url_for('fire_details') }}" class="btn btn-outline-secondary">
+                    <i class="fa fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <table class="table table-striped">
+                        <tr>
+                            <th style="width: 180px;">Fire ID:</th>
+                            <td>{{ fire_detail.fire_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Location:</th>
+                            <td>{{ fire_detail.location }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date & Time:</th>
+                            <td>{{ fire_detail.date_time.strftime('%d %B %Y, %H:%M') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                {% if fire_detail.status == 'Active' %}
+                                    <span class="badge bg-danger">{{ fire_detail.status }}</span>
+                                {% elif fire_detail.status == 'Contained' %}
+                                    <span class="badge bg-warning">{{ fire_detail.status }}</span>
+                                {% elif fire_detail.status == 'Extinguished' %}
+                                    <span class="badge bg-success">{{ fire_detail.status }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ fire_detail.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Severity:</th>
+                            <td>
+                                {% if fire_detail.severity == 'Critical' %}
+                                    <span class="badge bg-danger">{{ fire_detail.severity }}</span>
+                                {% elif fire_detail.severity == 'High' %}
+                                    <span class="badge bg-warning">{{ fire_detail.severity }}</span>
+                                {% elif fire_detail.severity == 'Medium' %}
+                                    <span class="badge bg-info">{{ fire_detail.severity }}</span>
+                                {% elif fire_detail.severity == 'Low' %}
+                                    <span class="badge bg-success">{{ fire_detail.severity }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ fire_detail.severity }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Reported By:</th>
+                            <td>{{ fire_detail.reported_by.name }} ({{ fire_detail.reported_by.role.value }})</td>
+                        </tr>
+                        <tr>
+                            <th>Reported On:</th>
+                            <td>{{ fire_detail.created_at.strftime('%d %B %Y, %H:%M') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Updated:</th>
+                            <td>{{ fire_detail.updated_at.strftime('%d %B %Y, %H:%M') }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Description</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if fire_detail.description %}
+                                <p class="mb-0">{{ fire_detail.description }}</p>
+                            {% else %}
+                                <p class="text-muted fst-italic mb-0">No description provided.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
