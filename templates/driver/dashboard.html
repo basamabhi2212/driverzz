@@ -1,1 +1,51 @@
+{% extends 'layout.html' %} {% block title %} - Driver Dashboard {% endblock %} {% block content %}
+Driver Dashboard
+{% if current_user.is_approved and current_user.is_active %}
+Active
+{% elif not current_user.is_approved %}
+Pending Approval
+{% else %}
+Inactive
+{% endif %}
+{% if not current_user.is_approved %}
+Your account is pending approval. You'll be notified once approved.
+{% elif not current_user.is_active %}
+Your account is currently inactive. Please contact admin for more information.
+{% endif %}
+Driver Profile
+{{ current_user.name }}
+Driver ID: {{ current_user.driver_id }}
 
+Phone:	{{ current_user.phone_number }}
+License:	{{ current_user.license_number }}
+License Expiry:	{{ current_user.license_expiry_date.strftime('%Y-%m-%d') }} {% if (current_user.license_expiry_date - now).days <= 30 and (current_user.license_expiry_date - now).days > 0 %} Expiring Soon {% elif current_user.license_expiry_date < now %} Expired {% endif %}
+View QR Code Payment Information
+Notifications
+{% if notifications %}
+{% for notification in notifications %}
+{{ notification.message }}
+{{ notification.created_at.strftime('%H:%M') }}
+{{ notification.created_at.strftime('%Y-%m-%d') }}
+{% endfor %}
+View All Notifications
+{% else %}
+No new notifications
+{% endif %}
+Assigned Trips
+{% if assigned_trips %}
+{% for trip in assigned_trips %} {% endfor %}
+Trip ID	Customer	Date & Time	Pickup	Drop	Status	Actions
+{{ trip.id }}	{{ trip.customer.name }}	{{ trip.trip_start_date.strftime('%Y-%m-%d %H:%M') }}	{{ trip.pickup_location }}	{{ trip.drop_location or 'Same as pickup (round trip)' }}	{% if trip.status.value == 'Assigned' %} {{ trip.status.value }} {% elif trip.status.value == 'Started' %} {{ trip.status.value }} {% endif %}	{% if trip.status.value == 'Assigned' %} Start {% else %} View {% endif %}
+{% else %}
+No trips assigned to you yet.
+{% endif %}
+Recent Completed Trips
+{% if completed_trips %}
+{% for trip in completed_trips %} {% endfor %}
+Trip ID	Customer	Date	Duration	Earnings	Payment Status
+{{ trip.id }}	{{ trip.customer.name }}	{{ trip.trip_start_date.strftime('%Y-%m-%d') }}	{{ "%.2f"|format(trip.total_hours or 0) }} hrs	₹{{ "%.2f"|format(trip.driver_amount or 0) }}	{% set payment = trip.driver.payments|selectattr('trip_id', 'equalto', trip.id)|first %} {% if payment %} Paid {% else %} Pending {% endif %}
+View All Payments
+{% else %}
+No completed trips yet.
+{% endif %}
+{% endblock %} {% block scripts %} {% endblock %}
