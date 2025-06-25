@@ -1,0 +1,59 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Add New Customer {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user-plus me-2"></i>Add New Customer</h1>
+    <a href="{{ url_for('customer_management') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Customers
+    </a>
+</div>
+
+<div class="card bg-dark text-white shadow">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Customer Information</h5>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('add_customer') }}" method="POST">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="mobile_number" class="form-label">Mobile Number</label>
+                    <input type="tel" class="form-control" id="mobile_number" name="mobile_number" required>
+                    <small class="text-muted">Include country code (e.g., +91XXXXXXXXXX)</small>
+                </div>
+                <div class="col-md-6">
+                    <label for="vehicle_model" class="form-label">Vehicle Model (Optional)</label>
+                    <input type="text" class="form-control" id="vehicle_model" name="vehicle_model">
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="home_address" class="form-label">Home Address</label>
+                <textarea class="form-control" id="home_address" name="home_address" rows="2" required></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="office_address" class="form-label">Office Address (Optional)</label>
+                <textarea class="form-control" id="office_address" name="office_address" rows="2"></textarea>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="reset" class="btn btn-outline-secondary me-md-2">
+                    <i class="fas fa-undo me-2"></i>Reset
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Customer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
