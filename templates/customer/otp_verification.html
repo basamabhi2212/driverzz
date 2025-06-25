@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block title %} - OTP Verification {% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card bg-dark text-white shadow-lg">
+            <div class="card-header text-center">
+                <h3><i class="fas fa-key me-2"></i>OTP Verification</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-mobile-alt fa-3x text-primary mb-3"></i>
+                    <p class="mb-0">An OTP has been sent to your mobile number</p>
+                    <h5>{{ session.get('customer_mobile', '') }}</h5>
+                </div>
+                
+                <form method="POST" action="{{ url_for('customer_verify_otp') }}">
+                    <div class="mb-4">
+                        <label for="otp" class="form-label">Enter OTP</label>
+                        <input type="text" class="form-control form-control-lg text-center" id="otp" name="otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="[0-9]{6}" required>
+                        <div class="form-text">Please enter the 6-digit code we sent to your mobile number.</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Verify OTP</button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="mb-0">Didn't receive the OTP? <a href="{{ url_for('customer_login') }}">Resend OTP</a></p>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ url_for('customer_login') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Customer Registration {% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card bg-dark text-white shadow-lg">
+            <div class="card-header text-center">
+                <h3><i class="fas fa-user-plus me-2"></i>Customer Registration</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('customer_register') }}">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="mobile_number" class="form-label">Mobile Number</label>
+                            <input type="tel" class="form-control" id="mobile_number" name="mobile_number" required>
+                            <div class="form-text">This will be used for OTP verification.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="home_address" class="form-label">Home Address</label>
+                        <textarea class="form-control" id="home_address" name="home_address" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="office_address" class="form-label">Office Address (Optional)</label>
+                        <textarea class="form-control" id="office_address" name="office_address" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="vehicle_model" class="form-label">Vehicle Model (Optional)</label>
+                        <input type="text" class="form-control" id="vehicle_model" name="vehicle_model" placeholder="e.g., Honda City, Maruti Swift">
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">Already have an account? <a href="{{ url_for('customer_login') }}">Login</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="card bg-dark text-white shadow mt-4">
+    <div class="card-header">
+        <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>How It Works</h4>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3 mb-3">
+                <div class="p-3">
+                    <i class="fas fa-user-plus fa-3x mb-3 text-primary"></i>
+                    <h5>1. Register</h5>
+                    <p>Create your account with basic information.</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3">
+                    <i class="fas fa-calendar-alt fa-3x mb-3 text-success"></i>
+                    <h5>2. Book a Trip</h5>
+                    <p>Select your pickup location and schedule.</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3">
+                    <i class="fas fa-car fa-3x mb-3 text-info"></i>
+                    <h5>3. Get a Driver</h5>
+                    <p>A verified driver will be assigned to you.</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3">
+                    <i class="fas fa-check-circle fa-3x mb-3 text-warning"></i>
+                    <h5>4. Enjoy Your Trip</h5>
+                    <p>Relax and let our driver take care of the rest.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

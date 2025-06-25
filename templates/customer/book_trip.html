@@ -1,0 +1,199 @@
+{% extends 'layout.html' %}
+
+{% block title %} - Book a Trip {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-plus-circle me-2"></i>Book a Trip</h1>
+    <a href="{{ url_for('customer_dashboard') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark text-white shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-car me-2"></i>Trip Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('book_trip') }}">
+                    <!-- Customer information (auto-filled) -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="customer_name" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="customer_name" value="{{ current_user.name }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="mobile_number" class="form-label">Mobile Number</label>
+                            <input type="tel" class="form-control" id="mobile_number" value="{{ current_user.mobile_number }}" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- Trip dates and type -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="trip_start_date" class="form-label">Trip Start Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="trip_start_date" name="trip_start_date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="trip_end_date" class="form-label">Trip End Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="trip_end_date" name="trip_end_date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="trip_type" class="form-label">Trip Type</label>
+                            <select class="form-select" id="trip_type" name="trip_type" required>
+                                {% for trip_type in trip_types %}
+                                <option value="{{ trip_type }}">{{ trip_type }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">One-way: different pickup/drop locations. Round-trip: return to pickup location.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="route_type" class="form-label">Route Type</label>
+                            <select class="form-select" id="route_type" name="route_type" required>
+                                {% for route_type in route_types %}
+                                <option value="{{ route_type }}">{{ route_type }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">In Station: within city limits. Out Station: outside city.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Locations -->
+                    <div class="mb-3">
+                        <label for="pickup_location" class="form-label">Pickup Location</label>
+                        <input type="text" class="form-control" id="pickup_location" name="pickup_location" placeholder="Enter pickup address" required>
+                    </div>
+                    
+                    <div class="mb-3" id="drop_location_container">
+                        <label for="drop_location" class="form-label">Drop Location (If one-way trip)</label>
+                        <input type="text" class="form-control" id="drop_location" name="drop_location" placeholder="Enter drop address">
+                    </div>
+                    
+                    <div class="alert alert-info mb-3">
+                        <h6><i class="fas fa-info-circle me-2"></i>Pricing Information</h6>
+                        <p class="mb-2">Prices vary based on:</p>
+                        <ul class="mb-0">
+                            <li>Trip Type (One-way/Round Trip)</li>
+                            <li>Route Type (In Station/Out Station)</li>
+                            <li>Time of day (Daytime/Nighttime)</li>
+                            <li>Trip duration (per hour)</li>
+                            <li>Final bill calculated after trip completion based on actual duration</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Book Trip</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card bg-dark text-white shadow mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Trip Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item bg-dark text-white">
+                        <i class="fas fa-check-circle text-success me-2"></i>Book at least 2 hours in advance
+                    </li>
+                    <li class="list-group-item bg-dark text-white">
+                        <i class="fas fa-check-circle text-success me-2"></i>A driver will be assigned before your trip
+                    </li>
+                    <li class="list-group-item bg-dark text-white">
+                        <i class="fas fa-check-circle text-success me-2"></i>You can track your driver in real-time
+                    </li>
+                    <li class="list-group-item bg-dark text-white">
+                        <i class="fas fa-check-circle text-success me-2"></i>Trip starts when the driver reaches your location
+                    </li>
+                    <li class="list-group-item bg-dark text-white">
+                        <i class="fas fa-check-circle text-success me-2"></i>Driver will take a selfie to confirm start/end
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card bg-dark text-white shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Locations</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-secondary">
+                    <i class="fas fa-info-circle me-2"></i>Your recent trip locations will appear here after you've taken some trips.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set minimum date-time for trip booking (now + 2 hours)
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        
+        // Add 2 hours to current time
+        now.setHours(now.getHours() + 2);
+        
+        // Format date-time for input (YYYY-MM-DDTHH:MM)
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+        // Set minimum values for date inputs
+        document.getElementById('trip_start_date').min = minDateTime;
+        document.getElementById('trip_end_date').min = minDateTime;
+        
+        // Show/hide drop location based on trip type
+        document.getElementById('trip_type').addEventListener('change', function() {
+            const tripType = this.value;
+            const dropLocationContainer = document.getElementById('drop_location_container');
+            
+            if (tripType === 'Round Trip') {
+                dropLocationContainer.style.display = 'none';
+                document.getElementById('drop_location').value = '';
+                document.getElementById('drop_location').required = false;
+            } else {
+                dropLocationContainer.style.display = 'block';
+                document.getElementById('drop_location').required = true;
+            }
+        });
+        
+        // Ensure end date is after start date
+        document.getElementById('trip_start_date').addEventListener('change', function() {
+            const startDate = new Date(this.value);
+            const endDateInput = document.getElementById('trip_end_date');
+            
+            if (endDateInput.value) {
+                const endDate = new Date(endDateInput.value);
+                if (endDate <= startDate) {
+                    // Set end date to start date + 1 hour
+                    startDate.setHours(startDate.getHours() + 1);
+                    const endYear = startDate.getFullYear();
+                    const endMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+                    const endDay = String(startDate.getDate()).padStart(2, '0');
+                    const endHours = String(startDate.getHours()).padStart(2, '0');
+                    const endMinutes = String(startDate.getMinutes()).padStart(2, '0');
+                    
+                    endDateInput.value = `${endYear}-${endMonth}-${endDay}T${endHours}:${endMinutes}`;
+                }
+            }
+            
+            // Update min value for end date input
+            endDateInput.min = this.value;
+        });
+    });
+</script>
+{% endblock %}
