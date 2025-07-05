@@ -2,61 +2,73 @@
 
 {% block title %} - Driver Login {% endblock %}
 
+{% block navbar %}{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        <div class="card bg-dark text-white shadow-lg">
-            <div class="card-header text-center">
-                <h3><i class="fas fa-car me-2"></i>Driver Login</h3>
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-steering-wheel"></i>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('driver_login') }}">
-                    <div class="mb-3">
-                        <label for="driver_id" class="form-label">Driver ID</label>
-                        <input type="text" class="form-control" id="driver_id" name="driver_id" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer text-center">
-                <p class="mb-0">Don't have an account? <a href="{{ url_for('driver_register') }}">Register</a></p>
-            </div>
+            <h3 class="login-title">Driver Portal</h3>
+            <p class="mb-0 text-white-50">Your driving career starts here</p>
+        </div>
+        
+        <div class="login-body">
+            <form method="POST" action="{{ url_for('driver_login') }}" id="loginForm">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="driver_id" name="driver_id" placeholder="Driver ID" required>
+                    <label for="driver_id">
+                        <i class="fas fa-id-card me-2"></i>Driver ID
+                    </label>
+                </div>
+                
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                    <label for="password">
+                        <i class="fas fa-lock me-2"></i>Password
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Sign In
+                </button>
+            </form>
+        </div>
+        
+        <div class="login-footer">
+            <p class="mb-0 text-white-50">
+                New driver? 
+                <a href="{{ url_for('driver_register') }}">Join our team</a>
+            </p>
         </div>
     </div>
 </div>
 
-<!-- Driver Benefits -->
-<div class="row mt-5">
-    <div class="col-md-4 mb-4">
-        <div class="card bg-dark text-white h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-money-bill-wave display-4 mb-3 text-success"></i>
+<!-- Benefits Section -->
+<div class="container benefits-section">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="benefit-card">
+                <i class="fas fa-money-bill-wave benefit-icon text-success"></i>
                 <h4>Competitive Pay</h4>
-                <p>Earn ₹86-96 per hour with regular payments, one of the best rates in the industry.</p>
+                <p>Earn ₹86-96 per hour with regular payments. One of the best rates in the industry.</p>
             </div>
         </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-        <div class="card bg-dark text-white h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-clock display-4 mb-3 text-primary"></i>
+        
+        <div class="col-md-4 mb-4">
+            <div class="benefit-card">
+                <i class="fas fa-clock benefit-icon text-primary"></i>
                 <h4>Flexible Hours</h4>
-                <p>Choose your trips and working hours to maintain your work-life balance.</p>
+                <p>Choose your trips and working hours to maintain perfect work-life balance.</p>
             </div>
         </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-        <div class="card bg-dark text-white h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-shield-alt display-4 mb-3 text-warning"></i>
+        
+        <div class="col-md-4 mb-4">
+            <div class="benefit-card">
+                <i class="fas fa-users benefit-icon text-warning"></i>
                 <h4>Professional Growth</h4>
                 <p>Build relationships with customers and grow your professional network.</p>
             </div>
@@ -65,21 +77,93 @@
 </div>
 
 <!-- Help Section -->
-<div class="card bg-dark text-white shadow mt-2">
-    <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Need Help?</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <h6><i class="fas fa-key me-2"></i>Forgot Your Driver ID?</h6>
-                <p>Please contact our support team at support@driverplatform.com or call +91-1234567890.</p>
-            </div>
-            <div class="col-md-6">
-                <h6><i class="fas fa-lock me-2"></i>Forgot Your Password?</h6>
-                <p>Please contact our support team for password reset assistance.</p>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="help-section">
+                <h4 class="text-center mb-4 text-white">
+                    <i class="fas fa-question-circle me-2"></i>Need Help?
+                </h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-key"></i>Forgot Driver ID?</h5>
+                        <p class="text-white-50">Contact our support team for assistance with your driver ID recovery.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-lock"></i>Password Issues?</h5>
+                        <p class="text-white-50">Need help with password reset? Our team is here to help you.</p>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <p class="text-white-50 mb-0">
+                        <i class="fas fa-phone me-2"></i>Support: +91-1234567890 | 
+                        <i class="fas fa-envelope me-2"></i>support@driverplatform.com
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Driver Requirements -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="help-section">
+                <h4 class="text-center mb-4 text-white">
+                    <i class="fas fa-clipboard-check me-2"></i>Driver Requirements
+                </h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="text-center">
+                            <i class="fas fa-id-card fa-2x mb-3 text-warning"></i>
+                            <h6 class="text-white">Valid License</h6>
+                            <p class="text-white-50 small">Must have a valid driving license with clean record</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="text-center">
+                            <i class="fas fa-user-check fa-2x mb-3 text-success"></i>
+                            <h6 class="text-white">Background Check</h6>
+                            <p class="text-white-50 small">Complete background verification required</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function(e) {
+        // Add loading state
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+        
+        // Remove loading state after 3 seconds (in case of error)
+        setTimeout(() => {
+            submitBtn.classList.remove('btn-loading');
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+    
+    // Add focus effects
+    const inputs = form.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
 {% endblock %}

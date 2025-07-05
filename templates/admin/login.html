@@ -2,32 +2,136 @@
 
 {% block title %} - Admin Login {% endblock %}
 
+{% block navbar %}{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        <div class="card bg-dark text-white shadow-lg">
-            <div class="card-header text-center">
-                <h3><i class="fas fa-user-cog me-2"></i>Admin Login</h3>
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-user-shield"></i>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('admin_login') }}">
-                    <div class="mb-3">
-                        <label for="employee_id" class="form-label">Employee ID</label>
-                        <input type="text" class="form-control" id="employee_id" name="employee_id" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </div>
-                </form>
+            <h3 class="login-title">Admin Portal</h3>
+            <p class="mb-0 text-white-50">Secure administrative access</p>
+        </div>
+        
+        <div class="login-body">
+            <form method="POST" action="{{ url_for('admin_login') }}" id="loginForm">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="employee_id" name="employee_id" placeholder="Employee ID" required>
+                    <label for="employee_id">
+                        <i class="fas fa-id-badge me-2"></i>Employee ID
+                    </label>
+                </div>
+                
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                    <label for="password">
+                        <i class="fas fa-lock me-2"></i>Password
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Sign In
+                </button>
+            </form>
+        </div>
+        
+        <div class="login-footer">
+            <p class="mb-0 text-white-50">
+                Need an account? 
+                <a href="{{ url_for('admin_register') }}">Register here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Benefits Section -->
+<div class="container benefits-section">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="benefit-card">
+                <i class="fas fa-tachometer-alt benefit-icon text-primary"></i>
+                <h4>Complete Control</h4>
+                <p>Manage all aspects of the platform including drivers, customers, trips, and financial operations.</p>
             </div>
-            <div class="card-footer text-center">
-                <p class="mb-0">Don't have an account? <a href="{{ url_for('admin_register') }}">Register</a></p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="benefit-card">
+                <i class="fas fa-chart-line benefit-icon text-success"></i>
+                <h4>Real-time Analytics</h4>
+                <p>Access comprehensive reports and analytics to make informed business decisions.</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="benefit-card">
+                <i class="fas fa-shield-alt benefit-icon text-warning"></i>
+                <h4>Secure Access</h4>
+                <p>Role-based access control ensures data security and proper authorization levels.</p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Help Section -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="help-section">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-question-circle"></i>Forgot Employee ID?</h5>
+                        <p class="text-white-50">Contact your system administrator or HR department for assistance with your employee ID.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-key"></i>Password Issues?</h5>
+                        <p class="text-white-50">For password reset, please contact the IT support team at support@driverplatform.com</p>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <p class="text-white-50 mb-0">
+                        <i class="fas fa-phone me-2"></i>Support: +91-1234567890 | 
+                        <i class="fas fa-envelope me-2"></i>support@driverplatform.com
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function(e) {
+        // Add loading state
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+        
+        // Remove loading state after 3 seconds (in case of error)
+        setTimeout(() => {
+            submitBtn.classList.remove('btn-loading');
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+    
+    // Add focus effects
+    const inputs = form.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
 {% endblock %}

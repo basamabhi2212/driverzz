@@ -2,42 +2,153 @@
 
 {% block title %} - OTP Verification {% endblock %}
 
+{% block navbar %}{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        <div class="card bg-dark text-white shadow-lg">
-            <div class="card-header text-center">
-                <h3><i class="fas fa-key me-2"></i>OTP Verification</h3>
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="otp-icon">
+                <i class="fas fa-mobile-alt"></i>
             </div>
-            <div class="card-body">
-                <div class="text-center mb-4">
-                    <i class="fas fa-mobile-alt fa-3x text-primary mb-3"></i>
-                    <p class="mb-0">An OTP has been sent to your mobile number</p>
-                    <h5>{{ session.get('customer_mobile', '') }}</h5>
+            <h3 class="login-title">OTP Verification</h3>
+            <p class="mb-0 text-white-50">Secure verification process</p>
+        </div>
+        
+        <div class="login-body">
+            <div class="otp-container mb-4">
+                <p class="text-white-50 mb-2">We've sent a verification code to:</p>
+                <h5 class="text-white">{{ session.get('customer_mobile', '') }}</h5>
+                <p class="text-white-50 small">Please enter the 6-digit code below</p>
+            </div>
+            
+            <form method="POST" action="{{ url_for('customer_verify_otp') }}" id="otpForm">
+                <div class="form-floating">
+                    <input type="text" class="form-control otp-input" id="otp" name="otp" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autocomplete="off">
+                    <label for="otp">
+                        <i class="fas fa-key me-2"></i>Enter OTP
+                    </label>
                 </div>
                 
-                <form method="POST" action="{{ url_for('customer_verify_otp') }}">
-                    <div class="mb-4">
-                        <label for="otp" class="form-label">Enter OTP</label>
-                        <input type="text" class="form-control form-control-lg text-center" id="otp" name="otp" placeholder="Enter 6-digit OTP" maxlength="6" pattern="[0-9]{6}" required>
-                        <div class="form-text">Please enter the 6-digit code we sent to your mobile number.</div>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">Verify OTP</button>
-                    </div>
-                </form>
-                
-                <div class="text-center mt-4">
-                    <p class="mb-0">Didn't receive the OTP? <a href="{{ url_for('customer_login') }}">Resend OTP</a></p>
-                </div>
+                <button type="submit" class="btn btn-login" id="verifyBtn">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Verify OTP
+                </button>
+            </form>
+            
+            <div class="text-center mt-3">
+                <p class="text-white-50 small mb-2">Didn't receive the code?</p>
+                <button type="button" class="btn btn-outline-light btn-sm" id="resendBtn" onclick="resendOTP()">
+                    <i class="fas fa-redo me-2"></i>Resend OTP
+                </button>
             </div>
-            <div class="card-footer text-center">
-                <a href="{{ url_for('customer_login') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Login
-                </a>
+        </div>
+        
+        <div class="login-footer">
+            <a href="{{ url_for('customer_login') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Login
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Security Info -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="help-section">
+                <h5 class="text-center text-white mb-3">
+                    <i class="fas fa-shield-alt me-2"></i>Security Information
+                </h5>
+                <div class="text-center">
+                    <p class="text-white-50 small mb-2">
+                        <i class="fas fa-clock me-2"></i>OTP expires in 10 minutes
+                    </p>
+                    <p class="text-white-50 small mb-2">
+                        <i class="fas fa-lock me-2"></i>Your data is encrypted and secure
+                    </p>
+                    <p class="text-white-50 small mb-0">
+                        <i class="fas fa-user-shield me-2"></i>We never share your personal information
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('otpForm');
+    const otpInput = document.getElementById('otp');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const resendBtn = document.getElementById('resendBtn');
+    
+    // Auto-focus on OTP input
+    otpInput.focus();
+    
+    // Only allow numbers in OTP input
+    otpInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 6) {
+            value = value.slice(0, 6);
+        }
+        e.target.value = value;
+        
+        // Auto-submit when 6 digits are entered
+        if (value.length === 6) {
+            setTimeout(() => {
+                form.submit();
+            }, 500);
+        }
+    });
+    
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        const otp = otpInput.value;
+        
+        if (otp.length !== 6) {
+            e.preventDefault();
+            alert('Please enter a valid 6-digit OTP');
+            return;
+        }
+        
+        // Add loading state
+        verifyBtn.classList.add('btn-loading');
+        verifyBtn.disabled = true;
+        
+        // Remove loading state after 3 seconds (in case of error)
+        setTimeout(() => {
+            verifyBtn.classList.remove('btn-loading');
+            verifyBtn.disabled = false;
+        }, 3000);
+    });
+    
+    // Countdown timer for resend button
+    let countdown = 30;
+    const countdownInterval = setInterval(() => {
+        if (countdown > 0) {
+            resendBtn.innerHTML = `<i class="fas fa-clock me-2"></i>Resend in ${countdown}s`;
+            resendBtn.disabled = true;
+            countdown--;
+        } else {
+            resendBtn.innerHTML = '<i class="fas fa-redo me-2"></i>Resend OTP';
+            resendBtn.disabled = false;
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+});
+
+function resendOTP() {
+    const resendBtn = document.getElementById('resendBtn');
+    
+    // Add loading state
+    resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+    resendBtn.disabled = true;
+    
+    // Redirect to login page to resend OTP
+    window.location.href = "{{ url_for('customer_login') }}";
+}
+</script>
 {% endblock %}

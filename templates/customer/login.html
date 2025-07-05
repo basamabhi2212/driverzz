@@ -2,63 +2,170 @@
 
 {% block title %} - Customer Login {% endblock %}
 
+{% block navbar %}{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        <div class="card bg-dark text-white shadow-lg">
-            <div class="card-header text-center">
-                <h3><i class="fas fa-user me-2"></i>Customer Login</h3>
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-user"></i>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('customer_login') }}">
-                    <div class="mb-3">
-                        <label for="mobile_number" class="form-label">Mobile Number</label>
-                        <input type="tel" class="form-control" id="mobile_number" name="mobile_number" placeholder="Enter your registered mobile number" required>
-                        <div class="form-text">We'll send you an OTP to verify your identity.</div>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Get OTP</button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer text-center">
-                <p class="mb-0">Don't have an account? <a href="{{ url_for('customer_register') }}">Register</a></p>
-            </div>
+            <h3 class="login-title">Customer Portal</h3>
+            <p class="mb-0 text-white-50">Book your driver today</p>
+        </div>
+        
+        <div class="login-body">
+            <form method="POST" action="{{ url_for('customer_login') }}" id="loginForm">
+                <div class="form-floating">
+                    <input type="tel" class="form-control" id="mobile_number" name="mobile_number" placeholder="Mobile Number" required>
+                    <label for="mobile_number">
+                        <i class="fas fa-mobile-alt me-2"></i>Mobile Number
+                    </label>
+                </div>
+                
+                <div class="alert alert-info" style="background: rgba(13, 202, 240, 0.1); border: 1px solid rgba(13, 202, 240, 0.3); border-radius: 10px;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    We'll send you an OTP to verify your identity
+                </div>
+                
+                <button type="submit" class="btn btn-login">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Get OTP
+                </button>
+            </form>
+        </div>
+        
+        <div class="login-footer">
+            <p class="mb-0 text-white-50">
+                New customer? 
+                <a href="{{ url_for('customer_register') }}">Register here</a>
+            </p>
         </div>
     </div>
 </div>
 
 <!-- Benefits Section -->
-<div class="row mt-5">
-    <div class="col-md-4 mb-4">
-        <div class="card bg-dark text-white h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-car-side display-4 mb-3 text-info"></i>
-                <h4>Book a Driver</h4>
-                <p>Need a driver for your car? Book skilled and verified drivers for one-way or round trips.</p>
+<div class="container benefits-section">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="benefit-card">
+                <i class="fas fa-car-side benefit-icon text-info"></i>
+                <h4>Professional Drivers</h4>
+                <p>Book skilled and verified drivers for your car. Perfect for one-way trips or round journeys.</p>
             </div>
         </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-        <div class="card bg-dark text-white h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-map-marked-alt display-4 mb-3 text-success"></i>
-                <h4>Track in Real-time</h4>
-                <p>Know where your driver is at all times with our real-time tracking feature.</p>
+        
+        <div class="col-md-4 mb-4">
+            <div class="benefit-card">
+                <i class="fas fa-map-marked-alt benefit-icon text-success"></i>
+                <h4>Real-time Tracking</h4>
+                <p>Know exactly where your driver is at all times with our advanced GPS tracking system.</p>
             </div>
         </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-        <div class="card bg-dark text-white h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-shield-alt display-4 mb-3 text-warning"></i>
+        
+        <div class="col-md-4 mb-4">
+            <div class="benefit-card">
+                <i class="fas fa-shield-alt benefit-icon text-warning"></i>
                 <h4>Safe & Secure</h4>
-                <p>All our drivers are verified and monitored to ensure your safety and security.</p>
+                <p>All drivers are thoroughly verified and background checked for your safety and peace of mind.</p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- How It Works Section -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="help-section">
+                <h4 class="text-center mb-4 text-white">
+                    <i class="fas fa-question-circle me-2"></i>How It Works
+                </h4>
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-user-plus fa-3x mb-3 text-primary"></i>
+                            <h6 class="text-white">1. Register</h6>
+                            <p class="text-white-50 small">Create your account with basic information</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-calendar-alt fa-3x mb-3 text-success"></i>
+                            <h6 class="text-white">2. Book Trip</h6>
+                            <p class="text-white-50 small">Select pickup location and schedule</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-car fa-3x mb-3 text-info"></i>
+                            <h6 class="text-white">3. Get Driver</h6>
+                            <p class="text-white-50 small">Verified driver assigned to you</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-check-circle fa-3x mb-3 text-warning"></i>
+                            <h6 class="text-white">4. Enjoy Trip</h6>
+                            <p class="text-white-50 small">Relax while we handle the driving</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const mobileInput = document.getElementById('mobile_number');
+    
+    // Format mobile number input
+    mobileInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 10) {
+            value = value.slice(0, 10);
+        }
+        e.target.value = value;
+    });
+    
+    form.addEventListener('submit', function(e) {
+        const mobile = mobileInput.value;
+        
+        // Basic validation
+        if (mobile.length !== 10) {
+            e.preventDefault();
+            alert('Please enter a valid 10-digit mobile number');
+            return;
+        }
+        
+        // Add loading state
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+        
+        // Remove loading state after 3 seconds (in case of error)
+        setTimeout(() => {
+            submitBtn.classList.remove('btn-loading');
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+    
+    // Add focus effects
+    const inputs = form.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
 {% endblock %}
